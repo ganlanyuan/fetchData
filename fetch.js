@@ -1,13 +1,11 @@
 // https://github.com/tmpvar/jsdom
 
-let url = 'https://www.christiantoday.com/',
+let url = 'website',
     urlBase = '',
     pages = 200,
     blockSelector = '.home-main-right',
     myFile = 'data.txt';
 
-const http = require('http');
-const https = require('https');
 const fs = require('fs');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
@@ -26,7 +24,7 @@ JSDOM.fromURL(url).then(dom => {
   // open all the pages
   // for (var i = 1; i <= pages; i++) {
   [].forEach.call(linkElements, function (el) {
-    
+
     JSDOM.fromURL(el.getAttribute('href')).then(dom => {
       let document = dom.window.document,
           block = document.querySelector(blockSelector);
