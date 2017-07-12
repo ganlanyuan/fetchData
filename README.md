@@ -8,3 +8,8 @@ Fetch website data with nodejs.
 \+ In command line tool, run `npm start`.  
 
 Repeat the last 2 steps next time.
+
+### Reference
+https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors
+https://nodejs.org/en/
+https://github.com/tmpvar/jsdom

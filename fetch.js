@@ -1,5 +1,3 @@
-// https://github.com/tmpvar/jsdom
-
 let url = 'website',
     urlBase = '',
     pages = 200,
