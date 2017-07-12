@@ -1,59 +1,70 @@
-// import { Selector } from 'testcafe';
-
-// fixture `Get started`
-//   .page `http://devexpress.github.io/testcafe/example`;
-
-// test('First test', async t => {
-//   // test code
-// });
-
-
 // https://github.com/tmpvar/jsdom
 
-let str = '';
-let imgUrl = '';
-let url = 'https://www.christiantoday.com/';
-let $;
+let url = 'https://www.christiantoday.com/',
+    urlBase = '',
+    pages = 200,
+    blockSelector = '.home-main-right',
+    myFile = 'data.txt';
 
 const http = require('http');
 const https = require('https');
+const fs = require('fs');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
+// === clear file content before fetching ===
+fs.truncate(myFile, 0, (err) => {
+  if (err) { return console.log(err); }
+  console.log('File content cleared. \n==============>');
+})
 
-JSDOM.fromURL('https://www.christiantoday.com/').then(dom => {
-  // const document = dom.window.document;
-  // const bodyEl = document.body; // implicitly created
-  // const pEl = document.querySelector("p");
-  // const textNode = pEl.firstChild;
-  // const imgEl = document.querySelector("img");
-  let nav = dom.window.document.querySelectorAll('.site-nav--desktop a');
-  [].forEach.call(nav, function (el) {
+// === fetching start ===
+JSDOM.fromURL(url).then(dom => {
+  let linkElements = dom.window.document.querySelectorAll('.site-nav--desktop a');
+  let pageCount = 1;
+
+  // open all the pages
+  // for (var i = 1; i <= pages; i++) {
+  [].forEach.call(linkElements, function (el) {
+    
     JSDOM.fromURL(el.getAttribute('href')).then(dom => {
-      let document = dom.window.document;
-      let main = document.querySelector('.home-main-right');
-      let imgs = main.querySelectorAll('img');
-      [].forEach.call(imgs, function (el) {
-        imgUrl += el.getAttribute('src') + '\n';
-        console.log(imgUrl);
-      })
+      let document = dom.window.document,
+          block = document.querySelector(blockSelector);
+
+      // the main block which contains the data 
+      if (block) {
+        let items = block.querySelectorAll('article, li'),
+            result = '';
+
+        // concatenate the data to a single string
+        [].forEach.call(items, function (el) {
+          var img = el.querySelector('img');
+          if (img) { 
+            src = img.getAttribute('src');
+            img = src.slice(0, src.indexOf('?')).replace('/thumb/', '/full/'); 
+          }
+
+          var heading = el.querySelector('h2') || el.querySelector('h3') || el.querySelector('h4');
+          if (heading) { heading = heading.textContent; }
+
+          result += 
+              'Image: ' + img + '\n' +
+              'Heading: ' + heading + '\n\n';
+        })
+
+        // write the string into file
+        fs.appendFile(myFile, result, (err) => {
+          if (err) { return console.log(err); }
+
+          console.log('Page ' + pageCount + ' finished.')
+          pageCount++;
+        })
+
+      // } else {
+      //   console.log(document.location.href);
+      }
     });
   });
-}).then(() => {
+  // }
+
 });
-
-// callback = function(response) {
-//   response.on('data', function (chunk) {
-//     str += chunk;
-//   });
-//   response.on('end', function () {
-//     // console.log(str);
-//     $ = cheerio.load(str);
-//     let nav = $('.site-nav--desktop a');
-//     console.log(nav.get(0).innerHTML);
-
-//     let newHttps = https.get()
-//   });
-// }
-
-// https.get(url, callback).end();
